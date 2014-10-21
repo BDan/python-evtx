@@ -1037,7 +1037,7 @@ class RootNode(BXmlNode):
                     if match:
                         frag = match.group()
                         acc.append("<string>")
-                        acc.append(frag.decode("utf16"))
+                        acc.append(frag.decode("utf16").replace('<', '&lt;').replace('>', '&gt;'))
                         acc.append("</string>\n")
                         bin = bin[len(frag) + 2:]
                         if len(bin) == 0:
