@@ -565,14 +565,13 @@ class Block(object):
         - `offset`: The relative offset from the start of the block.
         - `length`: The length of the string.
         Throws:
-        - `UnicodeDecodeError`
+        - N/A - function silently ignores characters that cannot
+                be unicode decoded.
         """
-        try:
-            return self._buf[self._offset + offset:self._offset + offset + \
-                             2 * length].tostring().decode("utf16")
-        except AttributeError: # already a 'str' ?
-            return self._buf[self._offset + offset:self._offset + offset + \
-                             2 * length].decode("utf16")
+        buf = self._buf[self._offset + offset:self._offset + offset + 2 * length]
+        if not isinstance(buf, str):
+            buf = buf.tostring()
+        return buf.decode('utf16', 'ignore')
 
     def unpack_dosdate(self, offset):
         """
@@ -598,7 +597,11 @@ class Block(object):
         Throws:
         - `OverrunBufferException`
         """
-        return parse_filetime(self.unpack_qword(offset))
+        try:
+            return parse_filetime(self.unpack_qword(offset))
+        except:
+            print "Error in 'unpack_filetime': Off: %s, data: %s"%(hex(offset+self._offset),hex(self.unpack_qword(offset)))
+            return 0
 
     def unpack_systemtime(self, offset):
         """
